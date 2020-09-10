@@ -14,21 +14,10 @@ func worker(id int, pool <-chan int, results chan<- int) {
 	}
 }
 
-func readResult(results chan int) {
-	v, ok := <-results
-	for ok {
-		fmt.Println(v)
-	}
-
-	close(results)
-}
-
 func main() {
-	pool := make(chan int, 100)
-	results := make(chan int, 100)
-
-	//Create a worker to read result
-	go readResult(results)
+	const numJobs = 5
+	pool := make(chan int, numJobs)
+	results := make(chan int, numJobs)
 
 	//Create 3 worker look like 3 goroutine
 	for i := 1; i <= 3; i++ {
@@ -36,9 +25,12 @@ func main() {
 	}
 
 	//Create 10 jobs
-	for j := 1; j <= 10; j++ {
+	for j := 1; j <= numJobs; j++ {
 		pool <- j
 	}
-
 	close(pool)
+
+	for a := 1; a <= numJobs; a++ {
+		fmt.Println("Result", <-results)
+	}
 }
